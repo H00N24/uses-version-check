@@ -1,7 +1,5 @@
 #!/bin/bash
 
-pwd
-
 headers='-H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28"'
 # if GITHUB_TOKEN exists create auth header
 if [[ -n "$GITHUB_TOKEN" ]]; then
@@ -9,7 +7,7 @@ if [[ -n "$GITHUB_TOKEN" ]]; then
 fi
 
 FILES="${FILES:-"$@"}"
-IGNORE_VERSION_REGEX="${IGNORE_VERSION_REGEX:-'main|master|latest'}"
+IGNORE_VERSION_REGEX="${IGNORE_VERSION_REGEX:-main|master|latest}"
 
 # if Use_error is set to true use error instead of warning
 if [[ "$USE_ERROR" == "true" ]]; then
@@ -18,7 +16,7 @@ else
     MSG="warning"
 fi
 
-grep -hrPo '\s+uses:\s+\K(.*)' "$FILES" --include '*.yml' --include '*.yaml' | sort -u | while IFS= read -r action; do
+echo "$FILES" | xargs -n 1 grep -hrPo '\s+uses:\s+\K(.*)' --include '*.yml' --include '*.yaml' | sort -u | while IFS= read -r action; do
     action_name="$(echo "$action" | cut -d'@' -f1)"
     action_version="$(echo "$action" | cut -d'@' -f2)"
 
