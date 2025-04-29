@@ -19,5 +19,6 @@ jobs:
         with:
           files: action.yml .github
           ignore_version_regex: main
+          use_error_log: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
