@@ -12,6 +12,9 @@ jobs:
     steps:
       # Outdated action versions
       - uses: actions/checkout@v3
+      - run: |
+          pwd
+          ls -la
       - uses: H00N24/uses-version-check@main
         with:
           files: action.yml .github
