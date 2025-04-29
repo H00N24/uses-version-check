@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/SchemaStore/schemastore/refs/heads/master/src/schemas/json/github-action.json
+name: Check GitHub Action Versions
+
+branding:
+  color: blue
+  icon: cloud-lightning
+
+inputs:
+  files:
+    description: |
+      Files to check. Defaults to all yaml files in `.github`.
+      Accepts files, directories, and globs.
+    required: true
+    default: ".github"
+  ignore_version_regex:
+    description: |
+      Regex to ignore versions. Defaults to `main|master|latest`.
+    required: false
+    default: "main|master|latest"
+  use_error_log:
+    description: |
+      If true, the action will use ::error instead of ::warning for logging outdated
+      versions. Defaults to false.
+    required: false
+    default: "false"
+
+runs:
+  using: "composite"
+  steps:
+    - shell: bash
+      run: bash '${{ github.action_path }}/check_version.sh'
+      env:
+        FILES: ${{ inputs.files }}
+        IGNORE_VERSION_REGEX: ${{ inputs.ignore_version_regex }}
+        USE_ERROR: ${{ inputs.use_error_log }}
