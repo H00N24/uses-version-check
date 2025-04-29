@@ -19,6 +19,6 @@ jobs:
         with:
           files: action.yml .github
           ignore_version_regex: main
-          use_error_log: true
+          use_error_log: ${{ github.event_name == 'schedule' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -25,6 +25,16 @@ jobs:
         with:
           files: action.yml .github
           ignore_version_regex: main
+          use_error_log: ${{ github.event_name == 'schedule' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
+
+Parameters:
+
+- `files`: The files to check for action versions. It accepts files or directories. The
+  default is `.github`.
+- `ignore_version_regex`: A regex to ignore certain versions. The default is
+  `main|master|latest`.
+- `use_error_log`: If set to `true`, the action will use `::error` instead of `::warning`
+  messages, and fail if it finds any outdated versions. The default is `false`.
