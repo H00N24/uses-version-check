@@ -16,6 +16,7 @@ else
     MSG="warning"
 fi
 
+outdated=false
 echo "$FILES" | xargs -n 1 grep -hrPo '\s+uses:\s+\K(.*)' --include '*.yml' --include '*.yaml' | sort -u | while IFS= read -r action; do
     action_name="$(echo "$action" | cut -d'@' -f1)"
     action_version="$(echo "$action" | cut -d'@' -f2)"
@@ -34,7 +35,13 @@ echo "$FILES" | xargs -n 1 grep -hrPo '\s+uses:\s+\K(.*)' --include '*.yml' --in
         if [[ "$latest_version." == "$action_version."* ]]; then
             echo "::debug::Action $action_name is up to date. Current version: $action_version, Latest version: $latest_version"
         else
+            outdated=true
             echo "::$MSG title=$action_name is outdated::Current version: $action_version, Latest version: $latest_version"
         fi
     fi
 done
+
+if [[ "$USE_ERROR" == "true" && "$outdated" == "true" ]]; then
+    echo "::error::Some actions are outdated. Please update them."
+    exit 1
+fi
