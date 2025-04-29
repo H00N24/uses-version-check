@@ -16,8 +16,9 @@ else
     MSG="warning"
 fi
 
-outdated=false
-echo "$FILES" | xargs -n 1 grep -hrPo '\s+uses:\s+\K(.*)' --include '*.yml' --include '*.yaml' | sort -u | while IFS= read -r action; do
+# Process the list of actions without using a subshell
+outdated_found=false
+while IFS= read -r action; do
     action_name="$(echo "$action" | cut -d'@' -f1)"
     action_version="$(echo "$action" | cut -d'@' -f2)"
 
@@ -31,17 +32,18 @@ echo "$FILES" | xargs -n 1 grep -hrPo '\s+uses:\s+\K(.*)' --include '*.yml' --in
         # Get the latest version from the GitHub API
         latest_version="$(curl -Ls "$headers" "https://api.github.com/repos/$action_name/releases/latest" | jq -r '.tag_name')"
 
-        # Check if lastest version begins with action_version
+        # Check if latest version begins with action_version
         if [[ "$latest_version." == "$action_version."* ]]; then
             echo "::debug::Action $action_name is up to date. Current version: $action_version, Latest version: $latest_version"
         else
-            outdated=true
             echo "::$MSG title=$action_name is outdated::Current version: $action_version, Latest version: $latest_version"
+            outdated_found=true
         fi
     fi
-done
+    # Use process substitution to avoid subshell
+done < <(echo "$FILES" | xargs -n 1 grep -hrPo '\s+uses:\s+\K(.*)' --include '*.yml' --include '*.yaml' | sort -u)
 
-if [[ "$USE_ERROR" == "true" && "$outdated" == "true" ]]; then
+if [[ "$USE_ERROR" == "true" && "$outdated_found" == "true" ]]; then
     echo "::error::Some actions are outdated. Please update them."
     exit 1
 fi
